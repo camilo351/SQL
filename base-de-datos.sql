@@ -3,12 +3,49 @@
 BEGIN;
 
 
-CREATE TABLE IF NOT EXISTS tienda_ropa.clientes
+CREATE TABLE IF NOT EXISTS public.cliente
 (
-    id integer NOT NULL DEFAULT nextval('tienda_ropa.usuario_id_seq'::regclass),
+    id_cliente serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default",
+    compra numeric(100, 0),
+    unidades integer,
+    CONSTRAINT cliente_pkey PRIMARY KEY (id_cliente)
+);
+
+CREATE TABLE IF NOT EXISTS public.producto
+(
+    id_producto serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default",
+    precio numeric(100, 0),
+    CONSTRAINT producto_pkey PRIMARY KEY (id_producto)
+);
+
+CREATE TABLE IF NOT EXISTS public.usuarios
+(
+    id integer NOT NULL DEFAULT nextval('"Usuarios_id_seq"'::regclass),
     nombre character varying(50) COLLATE pg_catalog."default",
-    correo character varying(50) COLLATE pg_catalog."default",
-    contacto numeric(10, 0),
-    CONSTRAINT usuario_pkey PRIMARY KEY (id)
+    gmail character varying(50) COLLATE pg_catalog."default",
+    CONSTRAINT "Usuarios_pkey" PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS public.venta
+(
+    id_venta serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    unidades integer,
+    precio numeric(100, 0),
+    CONSTRAINT venta_pkey PRIMARY KEY (id_venta)
+);
+
+CREATE TABLE IF NOT EXISTS public.ventas_realizadas
+(
+    id_venta_realizadas serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    precio numeric(100, 0),
+    fecha_venta date,
+    cliente character varying(100) COLLATE pg_catalog."default",
+    CONSTRAINT ventas_realizadas_pkey PRIMARY KEY (id_venta_realizadas)
 );
 END;
