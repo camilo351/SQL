@@ -272,3 +272,168 @@ INSERT INTO public.cliente (nombre, correo, compra, unidades) VALUES
 SELECT id_cliente FROM public.cliente
 GROUP BY id_cliente
 HAVING COUNT (id_cliente) > 3;
+
+INSERT INTO tienda_ropa.producto (nombre, precio)
+VALUES ('Laptop', 1200),
+('Teclado', 100),
+('Mouse', 50),
+('Monitor', 100),
+('Mousepad', 10),
+('Camara', 500),
+('Smartphone', 800),
+('Impresora', 200);
+
+SELECT * FROM tienda_ropa.producto
+ORDER BY precio DESC
+LIMIT 3;
+
+SELECT * FROM tienda_ropa.producto
+ORDER BY precio ASC
+LIMIT 4;
+
+SELECT * FROM tienda_ropa.producto
+ORDER BY precio ASC
+LIMIT 2 OFFSET 4;
+
+SELECT * FROM tienda_ropa.producto
+WHERE precio > 100
+ORDER BY precio DESC
+LIMIT 2;
+
+
+INSERT INTO practica.producto (producto_id, nombre, precio, unidades_vendidas)
+VALUES (1,'Camisa',85000, 304),
+(2, 'Pantalon Baggy',100000, 276),
+(3,'Jordan',160000,1000),
+(4,'Gorra NY',100000,223),
+(5,'Nike AIR',160000,345),
+(6,'Camisa NY', 100000, 366),
+(7,'Cargo Pants',335000,388),
+(8,'Sudadera',50000,200),
+(9,'Sombrero',100000, 23),
+(10,'TN NIKE', 180000,59);
+
+SELECT * FROM practica.producto
+WHERE precio > 50000
+ORDER BY precio ASC;
+
+SELECT nombre,precio FROM practica.producto
+WHERE nombre LIKE '%a%';
+
+SELECT COUNT (producto_id) AS total_producto
+FROM practica.producto;
+
+SELECT * FROM practica.producto
+ORDER BY precio ASC
+LIMIT 1;
+
+SELECT * FROM practica.producto
+ORDER BY precio DESC
+LIMIT 1;
+
+SELECT * FROM practica.producto
+WHERE precio BETWEEN 10000 AND 50000
+LIMIT 5;
+
+SELECT nombre, precio FROM practica.producto
+WHERE precio > 20000 AND precio < 100000
+ORDER BY precio ASC;
+
+SELECT * FROM practica.producto
+WHERE nombre LIKE 'C%';
+
+SELECT nombre, SUM (unidades_vendidas) AS total_unidades
+FROM practica.producto
+GROUP BY nombre
+ORDER BY total_unidades DESC;
+
+SELECT * FROM practica.producto
+WHERE precio > 120000 AND unidades_vendidas > 300
+ORDER BY unidades_vendidas DESC;
+
+SELECT nombre, AVG (precio) AS precio_promedio
+FROM practica.producto
+GROUP BY nombre;
+
+SELECT nombre FROM practica.producto
+WHERE nombre LIKE '%a';
+
+SELECT nombre, unidades_vendidas FROM practica.producto
+ORDER BY unidades_vendidas DESC
+LIMIT 3;
+
+SELECT nombre,precio, SUM(unidades_vendidas) AS total_unidades_vendidas
+FROM practica.producto
+WHERE precio BETWEEN 80000 AND 150000
+GROUP BY nombre,precio;
+
+SELECT nombre, SUM(unidades_vendidas) AS total_unidades_vendidas
+FROM practica.producto
+GROUP BY nombre
+ORDER BY total_unidades_vendidas DESC;
+
+SELECT precio, AVG (precio) AS promedio_precio
+FROM practica.producto
+GROUP BY precio
+HAVING (precio) <= 100000;
+
+SELECT precio, AVG (precio) AS promedio_precio
+FROM practica.producto
+GROUP BY precio 
+HAVING (precio) > 100000 AND (precio) <= 200000;
+
+SELECT precio, AVG (precio) AS promedio_precio
+FROM practica.producto
+GROUP BY precio
+HAVING (precio) > 200000;
+
+SELECT precio, COUNT (producto_id) AS total_producto
+FROM practica.producto
+GROUP BY precio;
+
+SELECT LEFT (nombre, 1) AS primer_caracter,
+       MAX (precio) AS precio_maximo,
+	   MIN (precio) AS precio_minimo
+FROM practica.producto
+GROUP BY primer_caracter
+ORDER BY primer_caracter ASC;
+
+SELECT precio,
+      SUM (unidades_vendidas) AS total_unidades_vendidas,
+	  AVG (precio) AS precio_promedio
+FROM practica.producto
+GROUP BY precio
+HAVING (precio) > 100000;
+
+SELECT LEFT (nombre, 1) AS primer_caracter,
+       AVG (precio) AS promedio_precio
+FROM practica.producto
+GROUP BY primer_caracter;
+
+SELECT precio,
+       MAX (precio) AS precio_maximo,
+       MIN (precio) AS precio_minimo
+FROM practica.producto
+WHERE unidades_vendidas > 200
+GROUP BY precio
+ORDER BY precio DESC;
+
+SELECT nombre,
+       SUM (unidades_vendidas) AS total_unidades_vendidas,
+       AVG (precio) AS precio_promedio
+FROM practica.producto
+WHERE nombre LIKE '_______'
+GROUP BY nombre;
+
+SELECT precio, 
+       AVG (precio) AS promedio_precio
+FROM practica.producto
+WHERE unidades_vendidas > 100
+GROUP BY precio
+HAVING (precio) > 120000;
+
+SELECT unidades_vendidas,
+      SUM (unidades_vendidas) AS total_unidades_vendidas
+FROM practica.producto
+GROUP BY unidades_vendidas
+ORDER BY unidades_vendidas DESC;
