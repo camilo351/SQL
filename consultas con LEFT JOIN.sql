@@ -183,4 +183,51 @@ ORDER BY precio_maximo ASC;
 
 --CONSULTAS 2 DE LEFT JOIN--
 
+SELECT clientes.nombre, COALESCE(pedidos.producto, 'sin pedido')
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+ORDER BY clientes.nombre ASC;
+
+
+
+SELECT clientes.nombre, COALESCE(SUM(pedidos.unidades), 0) AS total_unidades
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+GROUP BY clientes.nombre
+ORDER BY total_unidades ASC;
+
+
+SELECT clientes.nombre, COALESCE(pedidos.producto, 'sin pedidos') AS producto
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+WHERE pedidos.producto IS NULL;
+
+SELECT clientes.nombre, clientes.ciudad, COALESCE(pedidos.producto, 'sin pedido') AS producto
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+WHERE clientes.ciudad = 'Medellín';
+
+
+SELECT clientes.nombre, COALESCE(pedidos.producto, 'Sin producto') AS producto, MAX(pedidos.precio) AS producto_mas_caro
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+GROUP BY clientes.nombre, pedidos.producto;
+
+SELECT clientes.nombre, COALESCE(COUNT(pedidos.cliente_id),0) AS pedidos_totales
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+GROUP BY clientes.nombre;
+
+
+SELECT clientes.nombre, pedidos.fecha_pedido , COALESCE(pedidos.producto, 'Sin producto') AS producto
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+WHERE fecha_pedido > '2024-01-01';
 
