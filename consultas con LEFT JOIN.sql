@@ -231,3 +231,22 @@ LEFT JOIN pedidos
 ON clientes.cliente_id = pedidos.cliente_id
 WHERE fecha_pedido > '2024-01-01';
 
+SELECT clientes.nombre, COALESCE(pedidos.producto, 'sin producto') AS producto
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+WHERE clientes.nombre LIKE 'M%';
+
+SELECT clientes.nombre, COALESCE(MAX(pedidos.unidades), 0) AS maximo_unidades
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+GROUP BY clientes.nombre
+ORDER BY maximo_unidades DESC;
+
+SELECT clientes.nombre, COALESCE(SUM(pedidos.precio), 0) AS total_gastado
+FROM clientes
+LEFT JOIN pedidos
+ON clientes.cliente_id = pedidos.cliente_id
+GROUP BY clientes.nombre
+ORDER BY total_gastado DESC;
