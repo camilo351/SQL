@@ -394,26 +394,28 @@ FROM productos_ventas;
 ---EJERCICIO 17---
 WITH caida_venta AS (
     SELECT pr.nombre AS productos, 
-	EXTRACT(MONTH FROM v.fecha_venta) AS num_mes,
-    CASE
-        WHEN EXTRACT(MONTH FROM v.fecha_venta) = 1 THEN 'Enero'
-	    WHEN EXTRACT(MONTH FROM v.fecha_venta) = 2 THEN 'Febrero'
-	    WHEN EXTRACT(MONTH FROM v.fecha_venta) = 3 THEN 'Marzo'
-	    WHEN EXTRACT(MONTH FROM v.fecha_venta) = 4 THEN 'Abril'
-    END AS mes,
-    v.monto
-FROM productos pr
-INNER JOIN ventas v
-ON pr.producto_id = v.producto_id
+        EXTRACT(MONTH FROM v.fecha_venta) AS num_mes,
+        CASE
+            WHEN EXTRACT(MONTH FROM v.fecha_venta) = 1 THEN 'Enero'
+            WHEN EXTRACT(MONTH FROM v.fecha_venta) = 2 THEN 'Febrero'
+            WHEN EXTRACT(MONTH FROM v.fecha_venta) = 3 THEN 'Marzo'
+            WHEN EXTRACT(MONTH FROM v.fecha_venta) = 4 THEN 'Abril'
+        END AS mes,
+        v.monto
+    FROM productos pr
+    INNER JOIN ventas v
+    ON pr.producto_id = v.producto_id
 )
 SELECT productos, mes, monto,
-COALESCE(LAG(monto,1)OVER(PARTITION BY productos ORDER BY num_mes), 0) AS mes_anterior,
-COALESCE(LAG(monto,2)OVER(PARTITION BY productos ORDER BY num_mes), 0) AS dos_meses_anterior,
-CASE
-    WHEN monto < COALESCE(LAG(monto,1)OVER(PARTITION BY productos ORDER BY num_mes), 0) 
-	AND COALESCE(LAG(monto,2)OVER(PARTITION BY productos ORDER BY num_mes), 0) < 
-	COALESCE(LAG(monto,1)OVER(PARTITION BY productos ORDER BY num_mes), 0) AS mes_anterior THEN 'Bajo'
-	ELSE 'No bajo'
-END AS estado
+    COALESCE(LAG(monto,1) OVER(PARTITION BY productos ORDER BY num_mes), 0) AS mes_anterior,
+    COALESCE(LAG(monto,2) OVER(PARTITION BY productos ORDER BY num_mes), 0) AS dos_meses_anterior,
+    CASE
+        WHEN monto < COALESCE(LAG(monto,1) OVER(PARTITION BY productos ORDER BY num_mes), 0) 
+        AND COALESCE(LAG(monto,1) OVER(PARTITION BY productos ORDER BY num_mes), 0) > 
+            COALESCE(LAG(monto,2) OVER(PARTITION BY productos ORDER BY num_mes), 0) 
+        THEN 'Bajo'
+        ELSE 'No bajo'
+    END AS estado
 FROM caida_venta;
+
 
