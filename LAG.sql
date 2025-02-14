@@ -394,6 +394,33 @@ FROM productos_ventas;
 ---EJERCICIO 17---
 WITH caida_venta AS (
     SELECT pr.nombre AS productos, 
+	EXTRACT(MONTH FROM v.fecha_venta) AS num_mes,
+    CASE
+        WHEN EXTRACT(MONTH FROM v.fecha_venta) = 1 THEN 'Enero'
+	    WHEN EXTRACT(MONTH FROM v.fecha_venta) = 2 THEN 'Febrero'
+	    WHEN EXTRACT(MONTH FROM v.fecha_venta) = 3 THEN 'Marzo'
+	    WHEN EXTRACT(MONTH FROM v.fecha_venta) = 4 THEN 'Abril'
+    END AS mes,
+    v.monto
+FROM productos pr
+INNER JOIN ventas v
+ON pr.producto_id = v.producto_id
+)
+SELECT productos, mes, monto,
+COALESCE(LAG(monto,1)OVER(PARTITION BY productos ORDER BY num_mes), 0) AS mes_anterior,
+COALESCE(LAG(monto,2)OVER(PARTITION BY productos ORDER BY num_mes), 0) AS dos_meses_anterior,
+CASE
+    WHEN monto < COALESCE(LAG(monto,1)OVER(PARTITION BY productos ORDER BY num_mes), 0) 
+	AND COALESCE(LAG(monto,2)OVER(PARTITION BY productos ORDER BY num_mes), 0) < 
+	COALESCE(LAG(monto,1)OVER(PARTITION BY productos ORDER BY num_mes), 0) THEN 'Bajo'
+	ELSE 'No bajo'
+END AS estado
+FROM caida_venta;
+
+---EJERCICIO 18---
+WITH ranking_producto AS (
+    SELECT 
+        pr.nombre AS productos,
         EXTRACT(MONTH FROM v.fecha_venta) AS num_mes,
         CASE
             WHEN EXTRACT(MONTH FROM v.fecha_venta) = 1 THEN 'Enero'
@@ -401,21 +428,63 @@ WITH caida_venta AS (
             WHEN EXTRACT(MONTH FROM v.fecha_venta) = 3 THEN 'Marzo'
             WHEN EXTRACT(MONTH FROM v.fecha_venta) = 4 THEN 'Abril'
         END AS mes,
-        v.monto
+        v.monto,
+        DENSE_RANK() OVER(PARTITION BY EXTRACT(MONTH FROM v.fecha_venta) ORDER BY monto DESC) AS ranking
     FROM productos pr
     INNER JOIN ventas v
     ON pr.producto_id = v.producto_id
 )
 SELECT productos, mes, monto,
-    COALESCE(LAG(monto,1) OVER(PARTITION BY productos ORDER BY num_mes), 0) AS mes_anterior,
-    COALESCE(LAG(monto,2) OVER(PARTITION BY productos ORDER BY num_mes), 0) AS dos_meses_anterior,
-    CASE
-        WHEN monto < COALESCE(LAG(monto,1) OVER(PARTITION BY productos ORDER BY num_mes), 0) 
-        AND COALESCE(LAG(monto,1) OVER(PARTITION BY productos ORDER BY num_mes), 0) > 
-            COALESCE(LAG(monto,2) OVER(PARTITION BY productos ORDER BY num_mes), 0) 
-        THEN 'Bajo'
-        ELSE 'No bajo'
+    LAG(productos) OVER(ORDER BY num_mes, monto DESC) AS producto_anterior,
+    CASE 
+        WHEN productos = LAG(productos) OVER(ORDER BY num_mes, monto DESC) THEN 'No cambio el producto'
+        ELSE 'Cambio el producto líder'
     END AS estado
-FROM caida_venta;
+FROM ranking_producto
+WHERE ranking = 1;
+
+---EJERCICIO 19---
+WITH venta_acumulada AS (
+    SELECT EXTRACT(MONTH FROM fecha_venta) AS num_mes,
+	CASE
+	    WHEN EXTRACT(MONTH FROM fecha_venta) = 1 THEN 'Enero'
+		WHEN EXTRACT(MONTH FROM fecha_venta) = 2 THEN 'Febrero'
+		WHEN EXTRACT(MONTH FROM fecha_venta) = 3 THEN 'Marzo'
+		WHEN EXTRACT(MONTH FROM fecha_venta) = 4 THEN 'Abril'
+	END AS mes,
+	SUM(monto) AS total_monto
+	FROM ventas
+	GROUP BY EXTRACT(MONTH FROM fecha_venta)	
+)
+SELECT mes, total_monto,
+COALESCE(LAG(total_monto)OVER(ORDER BY num_mes),0) AS mes_anterior,
+CASE 
+    WHEN total_monto < COALESCE(LAG(total_monto)OVER(ORDER BY num_mes),0) THEN 'Bajo'
+	WHEN total_monto > COALESCE(LAG(total_monto)OVER(ORDER BY num_mes),0) THEN 'Subio'
+	ELSE 'Igual'
+END AS diferencia
+FROM venta_acumulada;
+
+---EJERCICIO 20---
+SELECT pr.nombre AS productos,
+CASE 
+    WHEN EXTRACT(MONTH FROM v.fecha_venta) = 1 THEN 'Enero'
+	WHEN EXTRACT(MONTH FROM v.fecha_venta) = 2 THEN 'Febrero'
+	WHEN EXTRACT(MONTH FROM v.fecha_venta) = 3 THEN 'Marzo'
+	WHEN EXTRACT(MONTH FROM v.fecha_venta) = 4 THEN 'Abril'
+END AS mes,
+v.monto,
+CASE 
+    WHEN LAG(monto,1)OVER(PARTITION BY pr.nombre ORDER BY v.fecha_venta) > v.monto THEN 'Peor mes'
+	WHEN LAG(monto,2)OVER(PARTITION BY pr.nombre ORDER BY v.fecha_venta) > v.monto THEN 'Peor mes'
+	WHEN LAG(monto,3)OVER(PARTITION BY pr.nombre ORDER BY v.fecha_venta) > v.monto THEN 'Peor mes'
+	ELSE '------'
+END AS estado
+FROM productos pr
+INNER JOIN ventas v
+ON pr.producto_id = v.producto_id;
+
+
+
 
 
