@@ -142,6 +142,8 @@ INSERT INTO costos_operacionales (id_empresa, fecha, costo) VALUES
 (2, '2024-01-02', 450.00),
 (2, '2024-01-07', 700.00);
 
+
+
 ---EJERCICIO 1---
 SELECT id_cliente,
        fecha,
@@ -188,13 +190,14 @@ FROM juegos;
 WITH dias_semana AS (
     SELECT id_producto, 
 	       EXTRACT (DAY FROM fecha) AS dia,
-		   cantidad
+		   cantidad, 
+		   fecha
 	FROM productos_vendidos
 )
 SELECT id_producto,
        dia,
 	   cantidad,
-	   SUM(cantidad)OVER(PARTITION BY id_producto ORDER BY dia ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS total_cantidad
+	   SUM(cantidad)OVER(PARTITION BY id_producto ORDER BY fecha ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS total_cantidad
 FROM dias_semana;
 
 ---EJERCICIO 7---
@@ -205,4 +208,100 @@ SELECT id_usuario,
 FROM transacciones_usuario;
 
 ---EJERCICIO 8---
-SELECT 
+SELECT id_cajero,
+       fecha,
+	   monto,
+	   SUM(monto)OVER(PARTITION BY id_cajero ORDER BY fecha ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS monto_cajero
+FROM cajero_retiros;
+
+---EJERCICIO 9---
+SELECT id_negocio,
+       fecha,
+	   ingreso,
+	   SUM(ingreso)OVER(PARTITION BY id_negocio ORDER BY fecha ROWS BETWEEN 9 PRECEDING AND CURRENT ROW) AS monto_ingreso
+FROM ingresos_negocio;
+
+---EJERCICIO 10---
+WITH meses AS (
+    SELECT id_empresa,
+	       fecha,
+           EXTRACT (MONTH FROM fecha) AS mes,
+	       costo
+	FROM costos_operacionales
+)
+SELECT id_empresa,
+       mes,
+	   costo,
+	   AVG(costo)OVER(PARTITION BY id_empresa ORDER BY fecha ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS promedio_mes
+FROM meses;
+
+---EJERCICIO 11---
+SELECT id_cliente,
+       fecha,
+	   total,
+	   AVG(total)OVER(PARTITION BY id_cliente ORDER BY fecha ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS promedio_cinco
+FROM ventas;
+
+---EJERCICIO 12---
+SELECT id_cliente,
+       fecha,
+	   total,
+	   COUNT(total)OVER(PARTITION BY id_cliente ORDER BY fecha ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS total_registro 
+FROM compras;
+
+---EJERCICIO 13---
+SELECT id_cliente,
+       fecha,
+	   total,
+	   LAG(total)OVER(PARTITION BY id_cliente ORDER BY fecha ) AS ultima_compra,
+	   total - LAG(total)OVER(PARTITION BY id_cliente ORDER BY fecha) AS diferencia
+FROM ventas;
+
+---EJERCICIO 14---
+SELECT id_jugador,
+       fecha,
+	   puntos,
+	   SUM(puntos)OVER(PARTITION BY id_jugador ORDER BY fecha ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS total_puntos
+FROM juegos;
+
+---EJERCICIO 15---
+SELECT ciudad,
+       fecha,
+	   temperatura,
+	   AVG(temperatura)OVER(PARTITION BY ciudad ORDER BY fecha ROWS BETWEEN 9 PRECEDING AND CURRENT ROW) AS promedio_media
+FROM clima;
+
+---EJERCICIO 16---
+SELECT id_empleado,
+       fecha,
+	   horas,
+	   AVG(horas)OVER(PARTITION BY id_empleado ORDER BY fecha ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS promedio_horas
+FROM horas_trabajadas;
+
+---EJERCICIO 17---
+SELECT id_producto, 
+       fecha,
+	   cantidad,
+	   SUM(cantidad)OVER(PARTITION BY id_producto ORDER BY fecha ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS total
+FROM  productos_vendidos;
+
+---EJERCICIO 18---
+SELECT id_usuario,
+       fecha, 
+	   monto,
+	   SUM(monto)OVER(PARTITION BY id_usuario ORDER BY fecha ROWS BETWEEN 7 PRECEDING AND CURRENT ROW) AS total
+FROM transacciones_usuario;
+
+---EJERCICIO 19---
+SELECT id_cajero,
+       fecha,
+	   monto,
+	   MAX(monto)OVER(PARTITION BY id_cajero ORDER BY fecha ROWS BETWEEN 3 PRECEDING AND CURRENT ROW) AS maximo
+FROM cajero_retiros;
+
+---EJERCICIO 20---
+SELECT id_negocio,
+       fecha,
+	   ingreso,
+	   SUM(ingreso)OVER(PARTITION BY id_negocio ORDER BY fecha ROWS BETWEEN 12 PRECEDING AND CURRENT ROW) AS total
+FROM ingresos_negocio;
